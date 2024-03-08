@@ -8,6 +8,8 @@ import 'package:pesan_makanan/models/menu_models.dart';
 // import 'package:google_fonts/google_fonts.dart';
 // import 'package:badges/badges.dart';
 import 'package:http/http.dart' as MyHttp;
+import 'package:pesan_makanan/providers/cart_provider.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,12 +20,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => CartProvider(),
+        ),
+      ],
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.green,
+        ),
+        home: const HomePage(),
       ),
-      home: const HomePage(),
     );
   }
 }
@@ -128,23 +137,42 @@ class _HomePageState extends State<HomePage> {
                                     Row(
                                       children: [
                                         IconButton(
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            Provider.of<CartProvider>(context,
+                                                    listen: false)
+                                                .addRemove(menu.id, false);
+                                          },
                                           icon: Icon(
                                             Icons.remove_circle,
                                             color: Colors.red,
                                           ),
                                         ),
                                         SizedBox(width: 10),
-                                        Text(
-                                          '0',
-                                          style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                        Consumer<CartProvider>(
+                                          builder: (context, value, _) {
+                                            var id = value.cart.indexWhere(
+                                                (Element) =>
+                                                    Element.menuId ==
+                                                    snapshot.data![index].id);
+                                            return Text(
+                                              (id == -1)
+                                                  ? "0"
+                                                  : value.cart[id].quantity
+                                                      .toString(),
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            );
+                                          },
                                         ),
                                         SizedBox(width: 10),
                                         IconButton(
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            Provider.of<CartProvider>(context,
+                                                    listen: false)
+                                                .addRemove(menu.id, true);
+                                          },
                                           icon: Icon(
                                             Icons.add_circle,
                                             color: Colors.green,
