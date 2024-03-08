@@ -1,12 +1,8 @@
-// import 'package:flutter/cupertino.dart';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-// import 'package:flutter/widgets.dart';
 import 'package:pesan_makanan/models/menu_models.dart';
-// import 'package:flutter/widgets.dart';
 // import 'package:google_fonts/google_fonts.dart';
-// import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:http/http.dart' as MyHttp;
 import 'package:pesan_makanan/providers/cart_provider.dart';
 import 'package:provider/provider.dart';
@@ -63,15 +59,25 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: Icon(Icons.shopping_bag),
-      ),
       appBar: AppBar(
         title: Text(
           'waroeng cepat saji',
         ),
         backgroundColor: Colors.blueGrey,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: Consumer<CartProvider>(
+          builder: (context, value, _) {
+            return badges.Badge(
+              badgeContent: Text(
+                (value.total > 0) ? value.total.toString() : "",
+                style: TextStyle(color: Colors.white),
+              ),
+              child: Icon(Icons.shopping_bag),
+            );
+          },
+        ),
       ),
       body: FutureBuilder(
         future: getAllData(),
