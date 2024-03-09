@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:open_whatsapp/open_whatsapp.dart';
 import 'package:pesan_makanan/models/menu_models.dart';
 // import 'package:google_fonts/google_fonts.dart';
 import 'package:badges/badges.dart' as badges;
@@ -23,11 +24,12 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(
           primarySwatch: Colors.green,
         ),
-        home: const HomePage(),
+        home: HomePage(),
       ),
     );
   }
@@ -41,6 +43,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  TextEditingController nameController = TextEditingController();
+  TextEditingController nomorMejaController = TextEditingController();
   final String urlMenu =
       'https://script.google.com/macros/s/AKfycbzyZXZHxvQCtgMnle7Dv0xGFOzYUSoRRMg8CZkdWugzJ3RqOM_tEexIswaIDBYUU547/exec';
 
@@ -56,17 +60,83 @@ class _HomePageState extends State<HomePage> {
     return ListMenu;
   }
 
+  void openDialog() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Container(
+              height: 280,
+              child: Column(
+                children: [
+                  Text('Nama', style: TextStyle(fontWeight: FontWeight.bold)),
+                  TextFormField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Text('Nomer Meja',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  TextFormField(
+                    controller: nomorMejaController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Consumer<CartProvider>(builder: (context, value, _) {
+                    String strPesanan = "";
+                    value.cart.forEach((element) {
+                      strPesanan = strPesanan +
+                          "\n" +
+                          element.name +
+                          "(" +
+                          element.quantity.toString() +
+                          ")";
+                    });
+                    return ElevatedButton(
+                        onPressed: () {
+                          String pesanan = "Nama :" +
+                              nameController.text +
+                              "\nNomer Meja :" +
+                              nomorMejaController.text +
+                              "pesanan :" +
+                              "\n" +
+                              strPesanan;
+                          FlutterOpenWhatsapp.sendSingleMessage(
+                              "628818775060", pesanan);
+                          print(pesanan);
+                        },
+                        child: Text('Pesan Sekarang'));
+                  })
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
           'waroeng cepat saji',
         ),
+        elevation: 0,
         backgroundColor: Colors.blueGrey,
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          openDialog();
+        },
         child: Consumer<CartProvider>(
           builder: (context, value, _) {
             return badges.Badge(
@@ -146,7 +216,8 @@ class _HomePageState extends State<HomePage> {
                                           onPressed: () {
                                             Provider.of<CartProvider>(context,
                                                     listen: false)
-                                                .addRemove(menu.id, false);
+                                                .addRemove(
+                                                    menu.name, menu.id, false);
                                           },
                                           icon: Icon(
                                             Icons.remove_circle,
@@ -177,7 +248,8 @@ class _HomePageState extends State<HomePage> {
                                           onPressed: () {
                                             Provider.of<CartProvider>(context,
                                                     listen: false)
-                                                .addRemove(menu.id, true);
+                                                .addRemove(
+                                                    menu.name, menu.id, true);
                                           },
                                           icon: Icon(
                                             Icons.add_circle,

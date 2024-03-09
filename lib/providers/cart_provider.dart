@@ -7,7 +7,7 @@ class CartProvider with ChangeNotifier {
   int _total = 0;
   int get total => _total;
 
-  void addRemove(int menuId, bool isAdd) {
+  void addRemove(String name, int menuId, bool isAdd) {
     if (_cart.where((element) => menuId == element.menuId).isNotEmpty) {
       // sudah mengandung id yang diklik
       var index = _cart.indexWhere((element) => element.menuId == menuId);
@@ -23,7 +23,7 @@ class CartProvider with ChangeNotifier {
               : 0;
     } else {
       // belum ada
-      _cart.add(CartModel(menuId: menuId, quantity: 1));
+      _cart.add(CartModel(name: name, menuId: menuId, quantity: 1));
       _total = _total + 1;
     }
     notifyListeners();
